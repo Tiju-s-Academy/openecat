@@ -32,10 +32,10 @@ class OpFaculty(models.Model):
     
     partner_id = fields.Many2one('res.partner', 'Partner',
                                  required=True, ondelete="cascade")
-    first_name = fields.Char('First Name', translate=True, required=True)
+    first_name = fields.Char('First Name', translate=True,)
     middle_name = fields.Char('Middle Name', size=128)
-    last_name = fields.Char('Last Name', size=128, required=True)
-    birth_date = fields.Date('Birth Date', required=True)
+    last_name = fields.Char('Last Name', size=128)
+    birth_date = fields.Date('Birth Date')
     blood_group = fields.Selection([
         ('A+', 'A+ve'),
         ('B+', 'B+ve'),
@@ -49,7 +49,7 @@ class OpFaculty(models.Model):
     gender = fields.Selection([
         ('male', 'Male'),
         ('female', 'Female')
-    ], 'Gender', required=True)
+    ], 'Gender')
     nationality = fields.Many2one('res.country', 'Nationality')
     emergency_contact = fields.Many2one(
         'res.partner', 'Emergency Contact')

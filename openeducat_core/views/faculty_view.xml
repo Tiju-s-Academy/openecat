@@ -108,7 +108,7 @@
                                         <table>
                                             <tr>
                                                 <td style="padding-right:10px;">
-                                                    <field name="first_name" required="1" placeholder="First Name"/>
+                                                    <field name="first_name"  placeholder="First Name"/>
                                                 </td>
                                                 <td style="padding-right:10px;">
                                                     <field name="middle_name" placeholder="Middle Name"/>
