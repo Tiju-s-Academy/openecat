@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Add this template to your module's XML file, e.g., `views/faculty_template.xml` -->
+<odoo>
+    <template id="template_faculty_form" name="Faculty Join Form">
+        <title>Faculty Join</title>
+        <t t-call="website.layout">
+            <br/>
+            <div class="container">
+                <center>
+                    <h1>Faculty Join Form</h1>
+                </center>
+                <br/>
+                <form action="/faculty/submit" method="post" class="form-horizontal">
+                    <input type="hidden" name="csrf_token"
+                           t-att-value="request.csrf_token()"/>
+                    <div class="row space">
+                        <div class="col-6">
+                            <label for="name">Title</label>
+                            <select name="title" class="form-control">
+                                <!-- Blank default option -->
+                                <option value="">Select Title</option>
+                                <t t-foreach="request.env['res.partner.title'].sudo().search([])" t-as="title">
+                                    <option t-att-value="title.id">
+                                        <t t-esc="title.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label for="first_name">First Name</label>
+                            <input type="text" name="first_name" class="form-control"/>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row space">
+                        <div class="col-6">
+                            <label for="middle_name">Middle Name</label>
+                            <input type="text" name="middle_name" class="form-control"/>
+                        </div>
+                        <div class="col-6">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" name="last_name" class="form-control"/>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row space">
+                        <div class="col-6">
+                            <label for="birth_date">Date of Birth</label>
+                            <input type="date" name="birth_date" class="form-control"/>
+                        </div>
+                        <div class="col-6">
+                            <label for="gender">Gender</label>
+                            <select name="gender" class="form-control">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row space">
+                        <div class="col-3">
+                            <label for="type">Address Type</label>
+                            <input type="text" name="address" class="form-control" value="Contact" readonly="true"/>
+                        </div>
+                        <div class="col-3">
+                            <label for="street">Street</label>
+                            <input type="text" name="street" class="form-control"/>
+                        </div>
+                        <div class="col-6">
+                            <label for="street">Street2</label>
+                            <input type="text" name="street2" class="form-control"/>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row space">
+                        <div class="col-3">
+                            <label for="city">City</label>
+                            <input type="text" name="city" class="form-control"/>
+                        </div>
+                        <div class="col-3">
+                            <label for="state_id">State</label>
+                            <select name="state_id" class="form-control">
+                                <!-- Dynamic loading of nationalities from res.country -->
+                                <option value="">Select Your state</option>
+                                <t t-foreach="request.env['res.country.state'].sudo().search([])" t-as="state">
+                                    <option t-att-value="state.id">
+                                        <t t-esc="state.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <label for="zip">ZIP Code</label>
+                            <input type="text" name="zip" class="form-control"/>
+                        </div>
+                        <div class="col-3">
+                            <label for="country_id">Country</label>
+                            <select name="country_id" class="form-control">
+                                <!-- Dynamic loading of nationalities from res.country -->
+                                <option value="">Select Your Country</option>
+                                <t t-foreach="request.env['res.country'].sudo().search([])" t-as="country">
+                                    <option t-att-value="country.id">
+                                        <t t-esc="country.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row space">
+                        <div class="col-6">
+                            <label for="phone">Phone</label>
+                            <input type="text" name="phone" class="form-control"/>
+                        </div>
+                        <div class="col-6">
+                            <label for="email">Email</label>
+                            <input type="email" name="email" required="required" class="form-control"/>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row space">
+                        <div class="col-6">
+                            <label for="blood_group">Blood Group</label>
+                            <select name="blood_group" class="form-control">
+                                <!-- Dynamic loading of blood groups from the faculty model -->
+                                <option value="">Select Your Blood Group</option>
+                                <t t-foreach="request.env['op.faculty'].fields_get()['blood_group']['selection']"
+                                   t-as="bg">
+                                    <option t-att-value="bg[0]">
+                                        <t t-esc="bg[1]"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label for="nationality">Nationality</label>
+                            <select name="nationality" class="form-control">
+                                <!-- Dynamic loading of nationalities from res.country -->
+                                <option value="">Select Your Country</option>
+                                <t t-foreach="request.env['res.country'].sudo().search([])" t-as="country">
+                                    <option t-att-value="country.id">
+                                        <t t-esc="country.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="form-group col-12 btn-center new_div space" align="center">
+                        <div style="width: 200px;"
+                             class="s_website_form_label"/>
+                        <button type="submit" class="btn btn-primary submit_btn" id="submitbtn">Submit
+                        </button>
+                    </div>
+                    <br/>
+                </form>
+            </div>
+        </t>
+         <script type="text/javascript">
+            function fetchStates(countryId) {
+                if (countryId) {
+                    fetch('/get_states/' + countryId)
+                        .then(response => response.json())
+                        .then(data => {
+                            const stateSelect = document.getElementById('state_id');
+                            stateSelect.innerHTML = '<option value="">Select Your State</option>'; // Clear existing options
+                            data.forEach(state => {
+                                const option = document.createElement('option');
+                                option.value = state.id;
+                                option.textContent = state.name;
+                                stateSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error('Error fetching states:', error));
+                } else {
+                    document.getElementById('state_id').innerHTML = '<option value="">Select Your State</option>'; // Clear options
+                }
+            }
+        </script>
+    </template>
+
+    <template id="faculty_thank_you" name="Thank You Page">
+        <t t-call="website.layout">
+            <div class="container">
+                <h2>Thank You!</h2>
+                <p>Your application has been submitted successfully.</p>
+            </div>
+        </t>
+    </template>
+</odoo>

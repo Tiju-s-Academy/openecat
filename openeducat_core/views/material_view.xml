@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_material_tree" model="ir.ui.view">
+        <field name="name">material.tree.view</field>
+        <field name="model">op.material</field>
+        <field name="arch" type="xml">
+            <tree string="material">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+    <record id="actions_material" model="ir.actions.act_window">
+        <field name="name">Materials</field>
+        <field name="res_model">op.material</field>
+        <field name="view_mode">tree</field>
+    </record>
+</odoo>
