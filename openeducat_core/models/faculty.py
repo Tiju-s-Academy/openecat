@@ -74,10 +74,12 @@ class OpFaculty(models.Model):
 
     @api.constrains('birth_date')
     def _check_birthdate(self):
-        for record in self:
-            if record.birth_date > fields.Date.today():
-                raise ValidationError(_(
-                    "Birth Date can't be greater than current date!"))
+        # for record in self:
+        #     if record.birth_date > fields.Date.today():
+        #         raise ValidationError(_(
+        #             "Birth Date can't be greater than current date!"))
+        pass
+    
 
     @api.onchange('first_name', 'middle_name', 'last_name')
     def _onchange_name(self):
