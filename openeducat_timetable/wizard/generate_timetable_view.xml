@@ -10,7 +10,7 @@
                     <field name="day" invisible="1"/>
                     <field name="session_start_time" widget="float_time"/>
                     <field name="session_end_time" widget="float_time"/>
-                    <field name="faculty_id"/>
+                    <field name="faculty_id" widget="many2many_tags"/>
                     <field name="subject_id"/>
                     <field name="classroom_id"/>
                     <field name="material_id"/>

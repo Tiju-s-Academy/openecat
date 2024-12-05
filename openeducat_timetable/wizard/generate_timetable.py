@@ -107,19 +107,18 @@ class GenerateSession(models.TransientModel):
                             session_end_time, '%Y-%m-%d %H:%M:%S')
                         curr_start_date = self.change_tz(final_start_date)
                         curr_end_date = self.change_tz(final_end_date)
-                        session_obj.create({
-                            'faculty_id': line.faculty_id.id,
-                            'subject_id': line.subject_id.id,
-                            'course_id': session.course_id.id,
-                            'batch_id': session.batch_id.id,
-                            'classroom_id': line.classroom_id.id,
-                            'material_id': line.material_id.id,
-                            'start_datetime':
-                                curr_start_date.strftime("%Y-%m-%d %H:%M:%S"),
-                            'end_datetime':
-                                curr_end_date.strftime("%Y-%m-%d %H:%M:%S"),
-                            'type': calendar.day_name[int(line.day)],
-                        })
+                        for faculty in line.faculty_id:
+                            session_obj.create({
+                                'faculty_id': faculty.id,
+                                'subject_id': line.subject_id.id,
+                                'course_id': session.course_id.id,
+                                'material_id': line.material_id.id,
+                                'batch_id': session.batch_id.id,
+                                'classroom_id': line.classroom_id.id,
+                                'start_datetime': curr_start_date.strftime("%Y-%m-%d %H:%M:%S"),
+                                'end_datetime': curr_end_date.strftime("%Y-%m-%d %H:%M:%S"),
+                                'type': calendar.day_name[int(line.day)],
+                            })
             print("session: ", session_obj)
             return {'type': 'ir.actions.act_window_close'}
 
@@ -131,7 +130,7 @@ class GenerateSessionLine(models.TransientModel):
 
     gen_time_table = fields.Many2one(
         'generate.time.table', 'Time Table', required=True)
-    faculty_id = fields.Many2one('op.faculty', 'Faculty', required=True)
+    faculty_id = fields.Many2many('op.faculty', 'Faculty', required=True)
     material_id = fields.Many2one('op.material', 'Material', required=True)
     subject_id = fields.Many2one('op.subject', 'Subject', required=True)
     timing_id = fields.Many2one('op.timing', 'Timing')

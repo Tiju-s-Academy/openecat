@@ -79,7 +79,7 @@ class OpFaculty(models.Model):
         #         raise ValidationError(_(
         #             "Birth Date can't be greater than current date!"))
         pass
-    
+
 
     @api.onchange('first_name', 'middle_name', 'last_name')
     def _onchange_name(self):
