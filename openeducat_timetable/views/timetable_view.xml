@@ -7,7 +7,7 @@
             <field name="priority" eval="8"/>
             <field name="arch" type="xml">
                 <tree string="Sessions">
-                    <field name="faculty_id"/>
+                    <field name="faculty_ids" widget="many2many_tags"/>
                     <field name="batch_id"/>
                     <field name="subject_id"/>
                     <field name="classroom_id"/>
@@ -29,19 +29,19 @@
                     <header>
                         <button type="object" name="lecture_confirm"
                                 invisible="state != 'draft'" string="Confirm"
-                                groups="openeducat_timetable.group_op_timetable_user"
+                                groups="openeducat_timetable.group_op_timetable_admin,openeducat_timetable.group_op_timetable_manager"
                                 class="oe_highlight"/>
                         <button type="object" name="lecture_done"
                                 invisible="state != 'confirm'" string="Done"
-                                groups="openeducat_timetable.group_op_timetable_user"
+                                groups="openeducat_timetable.group_op_timetable_admin,openeducat_timetable.group_op_timetable_manager"
                                 class="oe_highlight"/>
                         <button type="object" name="lecture_draft"
                                 invisible="state != 'cancel'" string="Set to Draft"
-                                groups="openeducat_timetable.group_op_timetable_user"
+                                groups="openeducat_timetable.group_op_timetable_admin,openeducat_timetable.group_op_timetable_manager"
                                 class="oe_highlight"/>
                         <button type="object" name="lecture_cancel"
                                 invisible="state in ('draft','confirm')" string="Cancel"
-                                groups="openeducat_timetable.group_op_timetable_user"/>
+                                groups="openeducat_timetable.group_op_timetable_admin,openeducat_timetable.group_op_timetable_manager"/>
                         <field name="state" widget="statusbar"
                                statusbar_visible="draft,confirm"/>
                     </header>
@@ -58,23 +58,24 @@
                         </div>
                         <group>
                             <group>
-                                <field name="faculty_id" options='{"no_open": True}'/>
-                                <field name="course_id" options='{"no_open": True}'/>
-                                <field name="subject_id"/>
-                                <field name="type"/>
+                                <field name="faculty_ids" widget="many2many_tags" options='{"no_open": True}' readonly="state != 'draft'"/>
+                                <field name="course_id" options='{"no_open": True}' readonly="state != 'draft'"/>
+                                <field name="subject_id" readonly="state != 'draft'"/>
+                                <field name="type" readonly="state != 'draft'"/>
                             </group>
                             <group>
                                 <field name="batch_id" options='{"no_open": True}'
-                                       context="{'course_id': course_id,'get_parent_batch':1}"/>
-                                <field name="classroom_id"/>
+                                       context="{'course_id': course_id,'get_parent_batch':1}" readonly="state != 'draft'"/>
+                                <field name="classroom_id" readonly="state != 'draft'"/>
                                 <label for="start_datetime" string="Session Time"/>
                                 <div class="o_row">
                                     <field name="start_datetime" widget="daterange" class="oe_inline"
-                                           options="{'related_end_date': 'end_datetime'}"/>
+                                           options="{'related_end_date': 'end_datetime'}" readonly="state != 'draft'"/>
                                     <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
                                     <field name="end_datetime" widget="daterange" nolabel="1" class="oe_inline"
-                                           options="{'related_start_date': 'start_datetime'}"/>
+                                           options="{'related_start_date': 'start_datetime'}" readonly="state != 'draft'"/>
                                 </div>
+                                <field name="branch_id" readonly="1"/>
                             </group>
                         </group>
                     </sheet>
@@ -159,7 +160,7 @@
                             <t t-if="widget.deletable">
                                 <a role="menuitem" type="delete" class="dropdown-item">Delete</a>
                             </t>
-                            <ul class="oe_kanban_colorpicker" data-field="color" />
+                            <ul class="oe_kanban_colorpicker" data-field="color"/>
                         </t>
                         <t t-name="kanban-box">
                             <div t-attf-class="#{kanban_color(record.color.raw_value)} oe_kanban_global_click">
@@ -170,45 +171,44 @@
                                         </strong>
                                     </div>
                                     <div class="oe_kanban_left">
-                                        <li t-if="record.faculty_id.raw_value">
-                                            <b>Faculty:</b>
-                                            <field name="faculty_id"/>
+                                        <li t-if="record.faculty_ids">
+                                            <b>Faculties:</b>
+                                            <field name="faculty_ids" widget="many2many_avatar_user"/>
                                         </li>
-                                        <li t-if="record.subject_id.raw_value">
+                                        <li t-if="record.subject_id">
                                             <b>Subject:</b>
                                             <field name="subject_id"/>
                                         </li>
-                                        <li t-if="record.course_id.raw_value">
+                                        <li t-if="record.course_id">
                                             <b>Course:</b>
                                             <field name="course_id"/>
                                         </li>
-                                        <li t-if="record.batch_id.raw_value">
+                                        <li t-if="record.batch_id">
                                             <b>Batch:</b>
                                             <field name="batch_id"/>
                                         </li>
-                                        <li t-if="record.start_datetime.raw_value">
+                                        <li t-if="record.start_datetime">
                                             <b>Start:</b>
                                             <field name="start_datetime"/>
                                         </li>
-                                        <li t-if="record.end_datetime.raw_value">
+                                        <li t-if="record.end_datetime">
                                             <b>End:</b>
                                             <field name="end_datetime"/>
                                         </li>
                                     </div>
                                     <div class="oe_kanban_bottom_right">
-                                        <img alt="Faculty"
-                                             t-att-src="kanban_image('op.faculty', 'image_1920', record.faculty_id.raw_value)"
-                                             t-att-title="record.faculty_id.value" width="24" height="24"
-                                             class="oe_kanban_avatar"/>
+                                        <!-- Optional: If you want to customize the display further, you can add custom styling here -->
                                     </div>
                                     <div class="oe_clear"></div>
                                 </div>
                             </div>
                         </t>
-                    </templates>        
+
+                    </templates>
                 </kanban>
             </field>
         </record>
+
 
         <record id="view_op_session_pivot" model="ir.ui.view">
             <field name="name">op.session.pivot</field>

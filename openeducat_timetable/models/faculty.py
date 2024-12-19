@@ -19,27 +19,39 @@
 #
 ###############################################################################
 
-from odoo import models, fields, api
+from odoo import models, fields, api,_
 
 
 class OpFaculty(models.Model):
-    _inherit = "op.faculty"
+    _inherit = 'op.faculty'
 
-    session_ids = fields.One2many('op.session', 'faculty_id', 'Sessions')
-    session_count = fields.Integer(compute='_compute_session_details')
+    session_ids = fields.Many2many(
+        'op.session', compute='_compute_session_ids', string='Sessions')
 
-    @api.depends('session_ids')
-    def _compute_session_details(self):
-        for session in self:
-            session.session_count = self.env['op.session'].search_count(
-                [('faculty_id', '=', self.id)])
+    session_count = fields.Integer(
+        string='Session Count', compute='_compute_session_count')
+
+    def _compute_session_ids(self):
+        for faculty in self:
+            # Search for sessions where the faculty is part of faculty_ids
+            faculty.session_ids = self.env['op.session'].search([('faculty_ids', 'in', faculty.id)])
+
+    def _compute_session_count(self):
+        for faculty in self:
+            # Count the number of sessions related to the faculty
+            faculty.session_count = len(faculty.session_ids)
 
     def count_sessions_details(self):
+        self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Sessions',
-            'view_mode': 'tree,form',
+            'name': _('Sessions'),
             'res_model': 'op.session',
-            'domain': [('faculty_id', '=', self.id)],
+            'view_mode': 'tree,form',
+            'domain': [('faculty_ids', 'in', self.id)],
+            'context': dict(self.env.context, default_faculty_ids=[self.id]),
             'target': 'current',
         }
+
+
+

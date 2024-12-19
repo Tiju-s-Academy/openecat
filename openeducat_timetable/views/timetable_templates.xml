@@ -50,9 +50,10 @@
                                                         <ul class="o_mail_thread_message_tracking">
                                                             <li>
                                                                 Faculty:
-                                                                <span>
-                                                                    <t t-out="object.faculty_id.name"/>
-                                                                </span>
+                                                                <t t-foreach="object.faculty_ids" t-as="faculty"
+                                                                   t-key="faculty.id">
+                                                                    -<t t-out="faculty.name"/>
+                                                                </t>
                                                             </li>
                                                             <li>
                                                                 Subject:

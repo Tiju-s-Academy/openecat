@@ -71,7 +71,6 @@ class SessionReport(models.TransientModel):
         data = self.read(
             ['start_date', 'end_date', 'course_id', 'batch_id', 'state',
              'faculty_id'])[0]
-        print("data",data)
         if data['state'] == 'student':
             time_table_ids = self.env['op.session'].search(
                 [('course_id', '=', data['course_id'][0]),

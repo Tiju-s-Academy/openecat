@@ -35,6 +35,9 @@ class GenerateSession(models.TransientModel):
 
     course_id = fields.Many2one('op.course', 'Course', required=True)
     batch_id = fields.Many2one('op.batch', 'Batch', required=True)
+    branch_id = fields.Many2one('employee.branch',string='Branch',compute='_compute_branch_id', store=True)
+    user_id = fields.Many2one('res.users', string='Users', default=lambda self: self.env.user)
+
     time_table_lines = fields.One2many(
         'gen.time.table.line', 'gen_time_table', 'Time Table Lines')
     time_table_lines_1 = fields.One2many(
@@ -62,8 +65,19 @@ class GenerateSession(models.TransientModel):
         'Start Date', required=True, default=time.strftime('%Y-%m-01'))
     end_date = fields.Date('End Date', required=True)
 
+    @api.depends('course_id')
+    def _compute_branch_id(self):
+        for record in self:
+            employee = self.env.user.employee_id
+            print("employee",employee)
+            if employee:
+                record.branch_id = employee.branch_id
+            else:
+                record.branch_id = False
+
     @api.constrains('start_date', 'end_date')
     def check_dates(self):
+        print("user",self.user_id)
         start_date = fields.Date.from_string(self.start_date)
         end_date = fields.Date.from_string(self.end_date)
         if start_date > end_date:
@@ -87,39 +101,58 @@ class GenerateSession(models.TransientModel):
 
     def act_gen_time_table(self):
         session_obj = self.env['op.session']
-
         for session in self:
+
             start_date = session.start_date
             end_date = session.end_date
+            print("range",(end_date - start_date).days + 1)
             for n in range((end_date - start_date).days + 1):
                 curr_date = start_date + datetime.timedelta(n)
+
                 for line in session.time_table_lines:
+
+                    print("session:", session.time_table_lines)
+
+                    print(line.faculty_ids)
+
+                    print("line-day",int(line.day))
+
                     if int(line.day) == curr_date.weekday():
+
                         session_start_time = '%s:00' % '{0:02.0f}:{1:02.0f}'.format(
                             *divmod(line.session_start_time * 60, 60))
+                        print("session_start_time", session_start_time)
                         session_end_time = '%s:00' % '{0:02.0f}:{1:02.0f}'.format(
                             *divmod(line.session_end_time * 60, 60))
+                        print("session_end_time", session_end_time)
                         final_start_date = datetime.datetime.strptime(
                             curr_date.strftime('%Y-%m-%d ') +
                             session_start_time, '%Y-%m-%d %H:%M:%S')
+                        print("final_start_date", final_start_date)
                         final_end_date = datetime.datetime.strptime(
                             curr_date.strftime('%Y-%m-%d ') +
                             session_end_time, '%Y-%m-%d %H:%M:%S')
+                        print("final_end_date", final_end_date)
+
                         curr_start_date = self.change_tz(final_start_date)
                         curr_end_date = self.change_tz(final_end_date)
-                        for faculty in line.faculty_id:
-                            session_obj.create({
-                                'faculty_id': faculty.id,
-                                'subject_id': line.subject_id.id,
-                                'course_id': session.course_id.id,
-                                'material_id': line.material_id.id,
-                                'batch_id': session.batch_id.id,
-                                'classroom_id': line.classroom_id.id,
-                                'start_datetime': curr_start_date.strftime("%Y-%m-%d %H:%M:%S"),
-                                'end_datetime': curr_end_date.strftime("%Y-%m-%d %H:%M:%S"),
-                                'type': calendar.day_name[int(line.day)],
-                            })
-            print("session: ", session_obj)
+                        print("user",self.user_id)
+                        print(curr_start_date)
+                        print(curr_end_date)
+                        session_obj.create({
+                            'faculty_ids': [(6, 0, line.faculty_ids.ids)],
+                            'branch_id': session.branch_id.id,
+                            'subject_id': line.subject_id.id,
+                            'user_id': session.user_id.id,
+                            'course_id': session.course_id.id,
+                            'batch_id': session.batch_id.id,
+                            'classroom_id': line.classroom_id.id,
+                            'material_id': line.material_id.id,
+                            'start_datetime': curr_start_date.strftime("%Y-%m-%d %H:%M:%S"),
+                            'end_datetime': curr_end_date.strftime("%Y-%m-%d %H:%M:%S"),
+                            'type': calendar.day_name[int(line.day)],
+
+                        })
             return {'type': 'ir.actions.act_window_close'}
 
 
@@ -130,7 +163,7 @@ class GenerateSessionLine(models.TransientModel):
 
     gen_time_table = fields.Many2one(
         'generate.time.table', 'Time Table', required=True)
-    faculty_id = fields.Many2many('op.faculty', 'Faculty', required=True)
+    faculty_ids = fields.Many2many('op.faculty', 'Faculty', required=True)
     material_id = fields.Many2one('op.material', 'Material', required=True)
     subject_id = fields.Many2one('op.subject', 'Subject', required=True)
     timing_id = fields.Many2one('op.timing', 'Timing')
